@@ -92,7 +92,7 @@ var Scroller = function (container, options) {
   }, false)
 }
 
-var members = {
+let members = {
   value: null,
   __prevValue: null,
   __isSingleTouch: false,
@@ -533,5 +533,6 @@ for (var key in members) {
   Scroller.prototype[key] = members[key]
 }
 
-module.exports = Scroller
+export default Scroller
+// module.exports = Scroller
 
