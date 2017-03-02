@@ -35,6 +35,10 @@ self.$config = {
         {
           title: '布局',
           path: '/zh-CN/components_layout'
+        },
+        {
+          title: '样式工具',
+          path: '/zh-CN/css'
         }]
       },
       {
@@ -51,7 +55,7 @@ self.$config = {
           title: '更新到v2.x',
           path: '/zh-CN/upgrade-to-2'
         }]
-        
+
       },
       {
         title: '捐赠 & Vux Pro',
@@ -68,7 +72,7 @@ self.$config = {
         items: langs
       }
     ],
-    
+
     en: [{
         title: 'Home',
         path: '/en/'

@@ -4,10 +4,16 @@ process.env.NODE_ENV = 'production'
 /**
  * --locale='zh-CN'
  * --namespace='vux'
+ * --components=Group,Cell
  */
 
 var argv = require('yargs').argv
 var namespace = argv.namespace || 'vux'
+
+const { build } = require('./umd-helper')
+
+var isBuildAll = !argv.components
+var buildComponents = argv.components ? argv.components.split(',') : []
 
 let config = require('./webpack.prod.conf.js')
 const vuxConfig = require('./vux-config')
@@ -27,7 +33,7 @@ const path = require('path')
 mkdirp.sync(path.resolve(__dirname, '../dist/plugins'))
 mkdirp.sync(path.resolve(__dirname, '../dist/styles'))
 
-const list = require(path.resolve(__dirname, '../src/datas/vux_component_list.json'))
+let list = require(path.resolve(__dirname, '../src/datas/vux_component_list.json'))
 const maps = require(path.resolve(__dirname, '../src/components/map.json'))
 
 // 查找在maps里但不在list里的组件
@@ -36,7 +42,7 @@ for (let i in maps) {
   let match = list.filter(function (one) {
     return _camelCase(one.name) === i
   })
-  if (match.length === 0 && !/Plugin|Data|Directive|Filter|Item|NOTICE|Demo|Dev|Tool|md5|base64|cookie/.test(i)) {
+  if (match.length === 0 && !/Plugin|Data|Directive|Filter|Item|NOTICE|Demo|Dev|Tool|String|Number|number|format|md5|base64|cookie/.test(i)) {
     others.push({
       name: toDash(i),
       importName: i,
@@ -56,25 +62,6 @@ var co = require('co')
 var thunkify = require('thunkify')
 var pkg = require(path.resolve(__dirname, '../package.json'))
 
-var build = thunkify(function (config, name, cb) {
-  let start = new Date().getTime()
-  console.log(`start:${name}`)
-  webpack(config, function (err, stats) {
-    if (!config.entry.vux) {
-      mkdirp.sync(path.resolve(config.output.path))
-      // touch.sync(path.resolve(config.output.path, './index.min.css'))
-    }
-    var jsonStats = stats.toJson()
-    var assets = jsonStats.assets[0]
-    var size = assets.size / 1024
-    size = size.toFixed(2) + 'k'
-    console.log('size', size)
-    console.log('time', (new Date().getTime() - start) / 1000 + 's')
-    console.log('----------------')
-    cb && cb(err)
-  })
-})
-
 var utils = require('./utils')
 config.devtool = false
 config.plugins = config.plugins.slice(0, -2)
@@ -91,41 +78,55 @@ config.output.assetsPublicPath = '/'
 
 let isBuilding = false
 
-
 co(function* () {
-  try {
-    for (let n = 0; n < others.length; n++) {
-      yield build(buildConfig(others[n]), others[n].name)
+
+  if (!buildComponents.length) {
+    try {
+      yield build(buildMainConfig(), 'vux')
+    } catch (e) {
+      console.log(e)
     }
-  } catch (e) {}
-})
 
-co(function* () {
+    try {
+      for (let n = 0; n < others.length; n++) {
+        yield build(buildConfig(others[n]), others[n].name)
+      }
+    } catch (e) {
+      console.log(e)
+    }
 
-  try {
-    yield build(buildMainConfig(), 'vux')
-  } catch (e) {
-    console.log(e)
+    try {
+      const pluginList = ['Confirm', 'Toast', 'Device', 'Alert', 'Loading', ' Wechat', 'Ajax']
+      for (let j = 0; j < pluginList.length; j++) {
+        yield build(buildPlugin(pluginList[j]), `Plugin ${pluginList[j]}`)
+      }
+    } catch (e) {
+      console.log(e)
+    }
   }
 
-
-  try {
-    const pluginList = ['Confirm', 'Toast', 'Device', 'Alert', 'Loading',' Wechat', 'Ajax']
-    for (let j = 0; j < pluginList.length; j++) {
-      yield build(buildPlugin(pluginList[j]), `Plugin ${pluginList[j]}`)
-    }
-  } catch (e) {
-    console.log(e)
+  if (buildComponents.length) {
+    list = list.filter(function (one) {
+      return buildComponents.indexOf(_camelCase(one.name)) > -1
+    })
   }
 
   try {
     for (let i = 0; i < list.length; i++) {
       let one = list[i]
+      const name = list[i].name
       if (one.items) {
+        // build a commonjs bundle
+        yield build(buildConfig({
+          name: list[i].name + '-pack',
+          importName: _camelCase(list[i].name),
+          path: `src/components/${name}/index.js`
+        }), `pack: ${list[i].name}`)
+
         for (let j = 0; j < one.items.length; j++) {
           one.name = one.items[j]
+          one.path = maps[_camelCase(one.items[j])]
           one.importName = _camelCase(one.items[j])
-          one.path = maps[one.importName]
           yield build(buildConfig(one), one.items[j])
         }
       } else {
@@ -157,9 +158,9 @@ function buildMainConfig() {
 
   // list all components
   const list = require('../src/components/map.json')
-  let code = 'const vux = {}\n'
-  code += `/* only for building vux.css */
-import Style from '../styles/index.vue'\n`
+  let code = 'const _vux = {}\n'
+  code += `!!window && (window.vux = _vux)\n`
+  code += `import Style from '../styles/index.vue'\n`
 
   delete list['NOTICE']
   delete list['ChinaAddressV1Data']
@@ -167,16 +168,15 @@ import Style from '../styles/index.vue'\n`
   for (let i in list) {
     const name = `${namespace}${i}`
     code += `import ${name} from '${list[i]}'\n
-vux['${name}'] = ${name}\n`
+_vux['${name}'] = ${name}\n`
   }
 
   code += `
 if (!!window) {
-  for (let i in vux) {
-    window[i] = vux[i]
+  for (let i in _vux) {
+    window[i] = _vux[i]
   }
 }\n`
-  code += `module.exports = vux`
 
   fs.writeFileSync(path.resolve(__dirname, '../src/components/index.js'), code)
 
@@ -195,8 +195,7 @@ if (!!window) {
   config.entry = config.entry || {}
   config.entry['vux'] = 'src/components/index.js'
   config.output = {}
-  config.output.libraryTarget = 'umd'
-  config.output.library = `vux`
+  config.output.libraryTarget = 'window'
   config.output.filename = `vux.min.js`
   config.output.path = path.resolve(__dirname, `../dist/`)
   delete config.__vueOptions__
@@ -227,9 +226,10 @@ function buildPlugin(name) {
   return config
 }
 
-function buildConfig(one) {
-  one.importName = _camelCase(one.name)
-  one.path = path.resolve(__dirname, '../' + maps[one.importName])
+function buildConfig(one, opts) {
+  opts = opts || {}
+  one.importName = one.importName || _camelCase(one.name)
+  one.path = path.resolve(__dirname, '../' + (one.path || maps[one.importName]))
 
   delete config.entry
 
@@ -243,7 +243,7 @@ function buildConfig(one) {
     filename: 'index.min.css'
   }))
 
-  config.entry = config.entry || {}
+  config.entry = {}
   config.entry[one.name] = one.path
   config.output = {}
   config.output.libraryTarget = 'umd'

@@ -1,8 +1,10 @@
+'use strict'
+
 const path = require('path')
 const fs = require('fs')
 const demoPath = path.resolve(__dirname, '../src/demo_list.json')
 
-var argv = require('yargs').argv
+const argv = require('yargs').argv
 argv.simulate = argv.simulate || false
 
 module.exports = {
@@ -26,6 +28,11 @@ module.exports = {
         this.addDependency(demoPath)
         let list = fs.readFileSync(demoPath, 'utf-8')
         list = JSON.parse(list)
+        if (argv.demo) {
+          list = list.filter(item => {
+            return item.indexOf(argv.demo) > -1
+          })
+        }
         let str = []
         list.forEach(one => {
           let filename = one
@@ -41,6 +48,15 @@ module.exports = {
   }
 }`)
         })
+
+         if (argv.platform === 'app') {
+           str.push(`{
+  path: '/test/app',
+  component: function (resolve) {
+    require(['./demos/AppTest.vue'], resolve)
+  }
+}`)
+        }
 
         // 404 page
         str.push(`{
