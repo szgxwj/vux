@@ -9,6 +9,8 @@ Vue.use(Vuex)
 
 import vuexI18n from 'vuex-i18n'
 
+require('es6-promise').polyfill()
+
 /**
 * you can add your module here
 */
@@ -45,7 +47,7 @@ store.registerModule('vux', {
 Vue.use(vuexI18n.plugin, store)
 
 // plugins
-import { DevicePlugin, ToastPlugin, AlertPlugin, ConfirmPlugin, LoadingPlugin, WechatPlugin, AjaxPlugin } from 'vux'
+import { LocalePlugin, DevicePlugin, ToastPlugin, AlertPlugin, ConfirmPlugin, LoadingPlugin, WechatPlugin, AjaxPlugin, AppPlugin } from 'vux'
 Vue.use(DevicePlugin)
 Vue.use(ToastPlugin)
 Vue.use(AlertPlugin)
@@ -53,9 +55,15 @@ Vue.use(ConfirmPlugin)
 Vue.use(LoadingPlugin)
 Vue.use(WechatPlugin)
 Vue.use(AjaxPlugin)
+Vue.use(LocalePlugin)
 
-const wx = WechatPlugin.$wechat
-const http = AjaxPlugin.$http
+// test
+if (process.env.platform === 'app') {
+  Vue.use(AppPlugin, store)
+}
+
+const wx = Vue.wechat
+const http = Vue.http
 
 /**
 * -------------------------- 微信分享 ----------------------
@@ -99,7 +107,13 @@ const finalLocales = {
 for (let i in finalLocales) {
   Vue.i18n.add(i, finalLocales[i])
 }
-Vue.i18n.set('zh-CN')
+
+const nowLocale = Vue.locale.get()
+if (/zh/.test(nowLocale)) {
+  Vue.i18n.set('zh-CN')
+} else {
+  Vue.i18n.set('en')
+}
 
 const FastClick = require('fastclick')
 FastClick.attach(document.body)

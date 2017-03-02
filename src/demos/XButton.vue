@@ -10,6 +10,11 @@
       <x-button type="primary" action-type="button">submit</x-button>
       <x-button type="warn" action-type="reset">reset</x-button>
 
+      <divider>loading</divider>
+      <x-button type="default" show-loading>submit</x-button>
+      <x-button type="primary" show-loading>submit</x-button>
+      <x-button type="warn" show-loading>submit</x-button>
+  
       <divider>mini</divider>
       <x-button mini>submit</x-button>
       <x-button mini type="primary">primary</x-button>
@@ -21,7 +26,11 @@
       <divider>plain</divider>
       <x-button plain>submit</x-button>
       <x-button plain type="primary">primary</x-button>
-      
+
+      <divider>you can custom styles</divider>      
+      <x-button plain type="primary" style="border-radius:99px;">primary</x-button>
+      <x-button plain type="primary" style="border-radius:99px;border-color:#CE3C39;color:#CE3C39;">primary</x-button>
+
       <divider>disabled</divider>
       <x-button disabled>disable submit</x-button>
       <x-button type="primary" disabled>disable primary</x-button>

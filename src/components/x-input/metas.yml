@@ -24,7 +24,7 @@ props:
   type:
     type: String
     default: text
-    zh-CN: '即input的`type`属性，目前支持 `text`,`number`,`email`,`password`'
+    zh-CN: '即input的`type`属性，目前支持 `text`,`number`,`email`,`password`,`tel`'
   is-type:
     type: String,Function
     zh-CN: '内置验证器，支持`email`,`china-name`,`china-mobile`, 同样也支持直接传函数, 需要同步返回一个对象`{valid:true}`或者`{valid:false, msg:错误信息}`'
@@ -79,6 +79,9 @@ methods:
   focus:
     zh-CN: 手动获得焦点
 changes:
+  v2.1.0-rc.51:
+    zh-CN:
+      - '[fix] 修复`slots`判断问题 #936 @zscumt123'
   v2.1.0-rc.49:
     zh-CN:
       - '[feature] 支持`slot=restricted-label` #918 @zqyadam'

@@ -33,6 +33,10 @@
     "icon": "&#xe658;"
   },
   {
+    "name": "cell-box",
+    "icon": "&#xe62a;"
+  },
+  {
     "name": "cell",
     "icon": "&#xe62a;"
   },
@@ -118,8 +122,20 @@
     "icon": "&#xe610;"
   },
   {
+    "name": "marquee",
+    "icon": "&#xe662;",
+    "items": [
+      "marquee",
+      "marquee-item"
+    ]
+  },
+  {
     "name": "masker",
     "icon": "&#xe651;"
+  },
+  {
+    "name": "msg",
+    "icon": "&#xe619;"
   },
   {
     "name": "panel",
@@ -191,6 +207,15 @@
     "icon": "&#xe623;"
   },
   {
+    "name": "swipeout",
+    "icon": "&#xe641;",
+    "items": [
+      "swipeout",
+      "swipeout-item",
+      "swipeout-button"
+    ]
+  },
+  {
     "name": "swiper",
     "icon": "&#xe612;"
   },
@@ -245,6 +270,10 @@
   {
     "name": "x-header",
     "icon": "&#xe654;"
+  },
+  {
+    "name": "x-icon",
+    "icon": "&#xe619;"
   },
   {
     "name": "x-img",

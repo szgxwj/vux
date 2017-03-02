@@ -1,6 +1,6 @@
 [
   "Cell",
-  "OnePx",
+  "OnePx#/css/1px",
   "Actionsheet",
   "XSwitch",
   "XAddress",
@@ -84,5 +84,12 @@
   "Issue865#/issue/865",
   "Swipeout",
   "TabbarSimple",
-  "Device#/plugin/device"
+  "Device#/plugin/device",
+  "Agree",
+  "XHr",
+  "Marquee",
+  "Msg",
+  "WepayInput",
+  "CellBox",
+  "XIcon"
 ]

@@ -66,12 +66,16 @@ export default {
       if (val) {
         this.popup.show()
         this.$emit('on-show')
+        this.fixSafariOverflowScrolling('auto')
         if (!this.hasFirstShow) {
           this.$emit('on-first-show')
           this.hasFirstShow = true
         }
       } else {
         this.$emit('on-hide')
+        if (!document.querySelector('.vux-popup-dialog.vux-popup-show')) {
+          this.fixSafariOverflowScrolling('touch')
+        }
         this.show = false
         this.popup.hide(false)
       }
@@ -94,7 +98,7 @@ export default {
   bottom: 0;
   width: 100%;
   background: #eee;
-  z-index: 101;
+  z-index: 501;
   transition-property: transform;
   transition-duration: 300ms;
 }

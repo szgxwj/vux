@@ -1,8 +1,11 @@
 <template>
   <div class="vux-swipeout-item"
   @touchstart="start"
+  @mousedown="start"
   @touchmove="move"
+  @mousemove="move"
   @touchend="end"
+  @mouseup="end"
   @touchcancel="end">
     <div class="vux-swipeout-button-box vux-swipeout-button-box-left" :style="leftButtonBoxStyle" v-show="distX >= 0">
       <slot name="left-menu"></slot>
@@ -10,29 +13,19 @@
     <div class="vux-swipeout-button-box" :style="rightButtonBoxStyle" v-show="distX <= 0">
       <slot name="right-menu"></slot>
     </div>
-    <div class="vux-swipeout-content" :style="styles" @touchstart="onContentClick" ref="content">
+    <div class="vux-swipeout-content" :style="styles" @mousedown="onContentClick" @touchstart="onContentClick" ref="content">
       <slot name="content"></slot>
     </div>
   </div>
 </template>
 
 <script>
-import arrayFilter from 'array-filter'
-
 export default {
   name: 'swipeout-item',
   props: {
     sensitivity: {
       type: Number,
       default: 0
-    },
-    rightMenuWidth: {
-      type: Number,
-      default: 160
-    },
-    leftMenuWidth: {
-      type: Number,
-      default: 160
     },
     autoCloseOnButtonClick: {
       type: Boolean,
@@ -46,7 +39,7 @@ export default {
     underlayColor: String,
     transitionMode: {
       type: String,
-      default: 'reveal' // follow stagger
+      default: 'reveal'
     }
   },
   mounted () {
@@ -54,50 +47,41 @@ export default {
       this.target = this.$refs.content
       if (this.$slots['left-menu']) {
         this.hasLeftMenu = true
+        this.caculateMenuWidth('left')
       }
       if (this.$slots['right-menu']) {
         this.hasRightMenu = true
+        this.caculateMenuWidth('right')
       }
     })
   },
   methods: {
+    caculateMenuWidth (direction) {
+      const list = this.$slots[`${direction}-menu`][0].children.filter(one => one.tag)
+      let width = 0
+      list.forEach(one => {
+        const propsData = one.componentOptions ? one.componentOptions.propsData : {}
+        width += propsData.width || 80
+      })
+      this[`${direction}MenuWidth`] = width
+    },
     onContentClick () {
       if (this.styles.transform.indexOf('(0px, 0, 0)') === -1) {
-        this.setOffset(0, true)
-        this.$emit('on-close')
-        setTimeout(() => {
-          this.isOpen = false
-        }, 200)
-        this.distX = 0
+        this._setClose(200)
       }
     },
     onItemClick () {
       if (this.autoCloseOnButtonClick) {
-        this.setOffset(0, true)
-        this.$emit('on-close')
-        this.isOpen = false
-        this.distX = 0
+        this._setClose()
       }
     },
     start (ev) {
-      if (this.disabled) {
+      if (this.disabled || ev.target.nodeName.toLowerCase() === 'button' || this.isOpen) {
         ev.preventDefault()
         return
       }
-      if (ev.target.nodeName.toLowerCase() === 'button') {
-        ev.preventDefault()
-        return
-      }
-
-      if (this.isOpen) {
-        ev.preventDefault()
-        return
-      }
-
       if (this.$parent.$options._componentTag === 'swipeout') {
-        const openItems = arrayFilter(this.$parent.$children, item => {
-          return item.$data.styles.transform.indexOf('(0px, 0, 0)') === -1
-        })
+        const openItems = this.$parent.$children.filter(item => item.$data.styles.transform.indexOf('(0px, 0, 0)') === -1)
         if (openItems.length > 0) {
           openItems.forEach(item => {
             item.setOffset(0, true)
@@ -112,6 +96,7 @@ export default {
     },
     move (ev) {
       if (this.disabled) {
+        ev.preventDefault()
         return
       }
       if (ev.target.nodeName.toLowerCase() === 'button') {
@@ -119,6 +104,7 @@ export default {
         return
       }
       if (this.pageX === undefined) {
+        ev.preventDefault()
         return
       }
 
@@ -142,24 +128,17 @@ export default {
           this.setOffset(this.distX)
         } else {
           const extra = (Math.abs(this.distX) - this.menuWidth) * 0.5
-          if (this.distX < 0) {
-            this.setOffset(-(this.menuWidth + extra))
-          } else {
-            this.setOffset(this.menuWidth + extra)
-          }
+          const offset = (this.menuWidth + extra) * (this.distX < 0 ? -1 : 1)
+          this.setOffset(offset)
         }
         ev.preventDefault()
       }
     },
     end (ev) {
-      if (this.disabled) {
-        return
-      }
-      if (ev.target.nodeName.toLowerCase() === 'button') {
+      if (this.disabled || ev.target.nodeName.toLowerCase() === 'button') {
         ev.preventDefault()
         return
       }
-
       if (this.valid === true) {
         if (this.distX < 0) {
           const threshold = this.threshold <= 1 ? this.rightMenuWidth * this.threshold : this.threshold
@@ -169,10 +148,7 @@ export default {
             this.$emit('on-open')
             this.isOpen = true
           } else {
-            this.setOffset(0, true)
-            this.$emit('on-close')
-            this.isOpen = false
-            this.distX = 0
+            this._setClose()
           }
         } else {
           const threshold = this.threshold <= 1 ? this.leftMenuWidth * this.threshold : this.threshold
@@ -182,10 +158,7 @@ export default {
             this.$emit('on-open')
             this.isOpen = true
           } else {
-            this.setOffset(0, true)
-            this.$emit('on-close')
-            this.isOpen = false
-            this.distX = 0
+            this._setClose()
           }
         }
       } else if (this.pageX !== undefined) {}
@@ -222,6 +195,18 @@ export default {
       }
       this.styles.transform = 'translate3d(' + x + 'px, 0, 0)'
     },
+    _setClose (delay = 0) {
+      this.setOffset(0, true)
+      this.$emit('on-close')
+      if (!delay) {
+        this.isOpen = false
+      } else {
+        setTimeout(() => {
+          this.isOpen = false
+        }, delay)
+      }
+      this.distX = 0
+    },
     open (position = 'right') {
       this.setOffset(position === 'right' ? -this.rightMenuWidth : this.leftMenuWidth, true, true)
     },
@@ -247,7 +232,7 @@ export default {
       }
     },
     leftButtonBoxStyle () {
-      let styles = this.buttonBoxStyle
+      let styles = JSON.parse(JSON.stringify(this.buttonBoxStyle))
       if (this.transitionMode === 'follow') {
         styles.transform = `translate3d(-${this.leftMenuWidth - this.distX}px, 0, 0)`
       }
@@ -279,7 +264,9 @@ export default {
       isOpen: false,
       styles: {
         transform: 'translate3d(0px, 0, 0)'
-      }
+      },
+      leftMenuWidth: 160,
+      rightMenuWidth: 160
     }
   },
   watch: {

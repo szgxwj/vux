@@ -42,7 +42,7 @@ export default {
       if (this.leftOptions.preventGoBack) {
         this.$emit('on-click-back')
       } else {
-        window.history.back()
+        this.$router ? this.$router.back() : window.history.back()
       }
     }
   }

@@ -1,19 +1,18 @@
 <template>
   <div class="vux-cell-box">
-    <div class="weui_cell vux-tap-active" @click="onClick" v-show="showCell">
-      <div class="weui_cell_hd">
-        <label class="weui_label" :style="{display: 'block', width: $parent.labelWidth || $parent.$parent.labelWidth, textAlign: $parent.labelAlign || $parent.$parent.labelAlign, marginRight: $parent.labelMarginRight || $parent.$parent.labelMarginRight}" v-if="title" v-html="title"></label>
+    <div class="weui-cell vux-tap-active weui-cell_access" @click="onClick" v-show="showCell">
+      <div class="weui-cell__hd">
+        <label class="weui-label" :style="{display: 'block', width: $parent.labelWidth || $parent.$parent.labelWidth, textAlign: $parent.labelAlign || $parent.$parent.labelAlign, marginRight: $parent.labelMarginRight || $parent.$parent.labelMarginRight}" v-if="title" v-html="title"></label>
         <inline-desc v-if="inlineDesc">{{inlineDesc}}</inline-desc>
       </div>
-      <div class="weui_cell_bd weui_cell_primary with_arrow vux-popup-picker-select-box">
+      <div class="vux-cell-primary vux-popup-picker-select-box">
         <div class="vux-popup-picker-select" :style="{textAlign: valueTextAlign}">
           <span class="vux-popup-picker-value" v-if="!showName && value.length">{{value | array2string}}</span>
           <span class="vux-popup-picker-value" v-if="showName && value.length">{{value | value2name(data)}}</span>
           <span v-if="!value.length && placeholder" v-html="placeholder"></span>
         </div>
       </div>
-      <div class="weui_cell_ft">
-
+      <div class="weui-cell__ft">
       </div>
     </div>
 
@@ -166,7 +165,8 @@ export default {
       }
     },
     currentValue (val) {
-      this.$emit('input', val)
+      this.$emit('on-change', getObject(val))
+      this.$emit('input', getObject(val))
     },
     show (val) {
       this.showValue = val
@@ -227,7 +227,7 @@ export default {
 .vux-popup-picker-select span {
   padding-right: 15px;
 }
-.vux-popup-picker-select-box.weui_cell_bd:after {
+.vux-popup-picker-select-box.weui-cell__bd:after {
   content: " ";
   display: inline-block;
   transform: rotate(45deg);

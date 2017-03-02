@@ -1,12 +1,15 @@
 <template>
   <div style="height:100%;">
     <loading v-model="isLoading"></loading>
-    <view-box ref="viewBox">
-      <x-header slot="header" style="width:100%;position:absolute;left:0;top:0;z-index:100;" :left-options="leftOptions" :title="title" @on-click-title="scrollTop"></x-header>
+    <view-box ref="viewBox" body-padding-top="46px" body-padding-bottom="55px">
+      <x-header slot="header" style="width:100%;position:absolute;left:0;top:0;z-index:100;" :left-options="leftOptions"
+      :title="title"
+      @on-click-title="scrollTop"
+      default-back-link="/"></x-header>
       <div style="padding: 15px 15px;" v-show="isShowBar">
         <button-tab>
-          <button-tab-item :selected="$i18n.locale() === 'zh-CN'" @click.native="$i18n.set('zh-CN')">中文</button-tab-item>
-          <button-tab-item :selected="$i18n.locale() === 'en'" @click.native="$i18n.set('en')">English</button-tab-item>
+          <button-tab-item :selected="$i18n.locale() === 'zh-CN'" @click.native="setLocale('zh-CN')">中文</button-tab-item>
+          <button-tab-item :selected="$i18n.locale() === 'en'" @click.native="setLocale('en')">English</button-tab-item>
         </button-tab>
       </div>
 
@@ -47,12 +50,19 @@ export default {
     Loading
   },
   methods: {
+    reload () {
+      document.location.reload()
+    },
     scrollTop () {
-      this.$refs.viewBox.scrollTop(0)
+      this.$refs.viewBox.scrollTo(0)
     },
     ...mapActions([
       'updateDemoPosition'
-    ])
+    ]),
+    setLocale (locale) {
+      this.$i18n.set(locale)
+      this.$locale.set(locale)
+    }
   },
   mounted () {
     this.handler = () => {
@@ -97,6 +107,7 @@ export default {
     ...mapState({
       route: state => state.route,
       path: state => state.route.path,
+      deviceready: state => state.app.deviceready,
       demoTop: state => state.vux.demoScrollTop,
       isLoading: state => state.vux.isLoading,
       direction: state => state.vux.direction
@@ -139,6 +150,8 @@ export default {
 
 <style lang="less">
 @import '~vux/src/styles/reset.less';
+@import '~vux/src/styles/1px.less';
+@import '~vux/src/styles/tap.less';
 
 body {
   background-color: #fbf9fe;
@@ -154,18 +167,15 @@ html, body {
   font-size: 22px;
   color: #888;
 }
-.weui_tabbar.vux-demo-tabbar {
+.weui-tabbar.vux-demo-tabbar {
   /** backdrop-filter: blur(10px);
   background-color: none;
   background: rgba(247, 247, 250, 0.5);**/
 }
-.vux-demo-tabbar .weui_bar_item_on .demo-icon-22 {
+.vux-demo-tabbar .weui-bar__item_on .demo-icon-22 {
   color: #F70968;
 }
-.vux-demo-tabbar .weui_tabbar_item.weui_bar_item_on .weui_tabbar_label {
-  color: #35495e;
-}
-.vux-demo-tabbar .weui_tabbar_item.weui_bar_item_on .vux-demo-tabbar-icon-home {
+.vux-demo-tabbar .weui-tabbar_item.weui-bar__item_on .vux-demo-tabbar-icon-home {
   color: rgb(53, 73, 94);
 }
 .demo-icon-22:before {
@@ -178,7 +188,7 @@ html, body {
   padding: 0 4px;
   line-height: 14px;
 }
-.weui_tabbar_icon + .weui_tabbar_label {
+.weui-tabbar__icon + .weui-tabbar__label {
   margin-top: 0!important;
 }
 .vux-demo-header-box {
@@ -188,17 +198,14 @@ html, body {
   left: 0;
   top: 0;
 }
-.weui_tab_bd {
-  padding-top: 46px;
-}
 
 @font-face {
   font-family: 'vux-demo';  /* project id 70323 */
-  src: url('//at.alicdn.com/t/font_mh11prdwhirx80k9.eot');
-  src: url('//at.alicdn.com/t/font_mh11prdwhirx80k9.eot?#iefix') format('embedded-opentype'),
-  url('//at.alicdn.com/t/font_mh11prdwhirx80k9.woff') format('woff'),
-  url('//at.alicdn.com/t/font_mh11prdwhirx80k9.ttf') format('truetype'),
-  url('//at.alicdn.com/t/font_mh11prdwhirx80k9.svg#iconfont') format('svg');
+  src: url('https://at.alicdn.com/t/font_h1fz4ogaj5cm1jor.eot');
+  src: url('https://at.alicdn.com/t/font_h1fz4ogaj5cm1jor.eot?#iefix') format('embedded-opentype'),
+  url('https://at.alicdn.com/t/font_h1fz4ogaj5cm1jor.woff') format('woff'),
+  url('https://at.alicdn.com/t/font_h1fz4ogaj5cm1jor.ttf') format('truetype'),
+  url('https://at.alicdn.com/t/font_h1fz4ogaj5cm1jor.svg#iconfont') format('svg');
 }
 
 .demo-icon {
@@ -244,9 +251,11 @@ html, body {
 }
 @keyframes popInLeft {
   from {
+    opacity: 0;
     transform: translate3d(-100%, 0, 0);
   }
   to {
+    opacity: 1;
     transform: translate3d(0, 0, 0);
   }
 }
@@ -255,6 +264,7 @@ html, body {
     opacity: 1;
   }
   to {
+    opacity: 0;
     transform: translate3d(-100%, 0, 0);
   }
 }
