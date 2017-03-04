@@ -11,7 +11,7 @@
       <inline-desc>{{inlineDesc}}</inline-desc>
     </div>
     <div class="weui-cell__ft" :class="{'vux-cell-primary':primary==='content'}">
-      {{value}}
+      {{slotValue}}
       <slot name="value"></slot>
       <slot></slot>
     </div>
@@ -38,6 +38,11 @@ export default {
     },
     link: {
       type: [String, Object]
+    }
+  },
+  computed: {
+    slotValue: function () {
+      return this.value;
     }
   },
   methods: {
