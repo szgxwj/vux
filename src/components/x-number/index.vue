@@ -14,7 +14,7 @@
         </a>
       </div>
     </div>
-    <div class="weui-cell__ft" v-show="readonly">
+    <div class="weui-cell__ft vux-cell-primary" v-show="readonly">
       {{value}}
     </div>
   </div>
@@ -77,8 +77,10 @@ export default {
       if (this.max && this.currentValue > this.max) {
         this.currentValue = this.max
       }
-      this.$emit('on-change', this.currentValue)
-      this.$emit('input', this.currentValue)
+      this.$nextTick(() => {
+        this.$emit('on-change', this.currentValue)
+        this.$emit('input', this.currentValue)
+      })
     },
     value (newValue) {
       this.currentValue = newValue

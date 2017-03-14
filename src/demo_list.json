@@ -91,5 +91,8 @@
   "Msg",
   "WepayInput",
   "CellBox",
-  "XIcon"
+  "XIcon",
+  "ScrollerSwiper",
+  "TabbarIcon",
+  "DatetimeRange"
 ]

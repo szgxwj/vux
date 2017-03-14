@@ -3,7 +3,6 @@ nav: zh-CN
 ---
 
 <p align="center">
-  <span class="big-title">VUX</span>
   <br>
    <a href="https://vux.li/demos/v2?x-page=v2-doc-home">
     <img src="https://static.vux.li/demo_v2_doc_home.png" width="100" alt="">
@@ -29,7 +28,7 @@ nav: zh-CN
     <img src="https://img.shields.io/github/issues/airyland/vux.svg?style=flat-square" alt="">
   </a>
   <a href="https://github.com/airyland/vux/issues">
-    <img src="http://isitmaintained.com/badge/resolution/airyland/vux.svg?style=flat-square" alt="">
+    <img src="https://isitmaintained.com/badge/resolution/airyland/vux.svg?style=flat-square" alt="">
   </a>
   <a href="https://github.com/airyland/vux/graphs/contributors">
     <img src="https://img.shields.io/github/contributors/airyland/vux.svg?style=flat-square" alt="">
@@ -52,6 +51,9 @@ nav: zh-CN
 </p>
 
 <p class="tip">
+  2.1.0 ~ 3.0.0 之间版本不会有影响升级的 `break change`，请放心及时更新版本。
+  <br>
+  <br>
   0.x 版本文档不完整，并且已经不再维护。请更新或者直接使用`2.x`。
   <br>
   如果你想查看`0.x`组件代码和 Demo 代码，请查看 [master 分支](https://github.com/airyland/vux/tree/master)
@@ -82,10 +84,12 @@ Vux（读音 [v'ju:z]，同`views`）是基于`WeUI`和`Vue`(2.x)开发的移动
 
 > 如果你的产品在使用`VUX`, 欢迎邮箱发送`Logo+链接`给我。
 
-<img src="https://static.vux.li/showcase/ssy_logo.png" width="200">
-<img src="https://static.vux.li/showcase/jkda51.png" width="200">
-<img src="https://static.vux.li/showcase/voez.png" width="200">
-<img src="https://static.vux.li/showcase/logo_xmb.png" width="200">
+<img src="https://static.vux.li/showcase/ssy.png" width="150">
+<img src="https://static.vux.li/showcase/jkda51.png?v2" width="150">
+<img src="https://static.vux.li/showcase/voez.png?v2" width="150">
+<img src="https://static.vux.li/showcase/xmb.png?v2" width="150">
+<img src="https://static.vux.li/showcase/jkny.png" width="150">
+<img src="https://static.vux.li/showcase/linkup.jpg" width="150">
 
 ## 安装使用(webpack)
 
@@ -351,27 +355,15 @@ console.log(Vue.wechat) // 可以直接访问 wx 对象。
 ```
 那么之后任何组件中都可以通过 `this.$wechat` 访问到 `wx` 对象。
 
-考虑到你需要在引入插件后调用`wx.config`方法进行配置，你可以通过 `WechatPlugin.$wechat` 在组件外部访问`wx`对象。 
+考虑到你需要在引入插件后调用`wx.config`方法进行配置，你可以通过 `Vue.wechat` 在组件外部访问`wx`对象。 
+
+`jssdk`需要请求签名配置，你可以直接使用下面的`ajaxPlugin`。
 
 ## 发送 ajax 请求
 
 <p class="tip">
   `AjaxPlugin`在`vux@^2.1.0-rc.20`开始支持
 </p>
-
-`ajax`请求推荐使用 [axios](https://github.com/mzabriskie/axios)
-
-需要注意的是`axios`是基于`Promise`的，因此如果你需要兼容低版本浏览器([caniuse](http://caniuse.com/#feat=promises))，需要引入`polyfill`。
-
-`Polyfill` 推荐使用 [es6-promise](https://github.com/stefanpenner/es6-promise)
-
-``` js
-require('es6-promise').polyfill()
-```
-
---- 
-
-如果你非常非常懒并且觉得`axios`名字比较奇怪，`VUX`直接把`axios`封装成插件，你可以直接引用插件。
 
 ``` js
 import { AjaxPlugin } from 'vux'
@@ -381,6 +373,16 @@ console.log(Vue.http)
 ```
 
 然后你可以和`vue-resource`一样在组件内使用`this.$http`进行调用了。
+
+---
+
+`AjaxPlugin` 插件依赖于 [axios](https://github.com/mzabriskie/axios)，需要注意的是`axios`是基于`Promise`的，因此如果你需要兼容低版本浏览器([caniuse](http://caniuse.com/#feat=promises))，需要引入`polyfill`。
+
+`Polyfill` 推荐使用 [es6-promise](https://github.com/stefanpenner/es6-promise)
+
+``` js
+require('es6-promise').polyfill()
+```
 
 ## 优化
 
@@ -837,7 +839,7 @@ querystring.stringify({a:'b',c:'d'}) // 'a=b&c=d'，注意不支持复杂嵌套�
 
 ``` bash
 yarn // 使用 yarn.lock 保证依赖版本一致
-yarn run dev
+yarn dev
 ```
 
 ### 本地查看文档
@@ -850,6 +852,21 @@ npm run docs // 使用 docute 预览文档
 ### 如何贡献
 
 遵从 Github 上的 contribution template.
+
+如果修改了组件代码，需要在组件目录的`metas.yml`加上changes，直接使用`next`作为版本号(如果已经存在该版本号，则直接添加变更条目即可)。
+
+中括号内为变更类型，可选值 `fix` `enhance` `feature` `change`
+
+比如：
+
+``` yml
+changes:
+  next:
+    en:
+      - '[fix] fix *** bug #issueId'
+    zh-CN:
+      - '[fix] 修复 *** bug #issueId'
+```
 
 ### 如何更新文档
 

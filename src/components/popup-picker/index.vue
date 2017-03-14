@@ -7,8 +7,9 @@
       </div>
       <div class="vux-cell-primary vux-popup-picker-select-box">
         <div class="vux-popup-picker-select" :style="{textAlign: valueTextAlign}">
-          <span class="vux-popup-picker-value" v-if="!showName && value.length">{{value | array2string}}</span>
-          <span class="vux-popup-picker-value" v-if="showName && value.length">{{value | value2name(data)}}</span>
+          <span class="vux-popup-picker-value" v-if="!displayFormat && !showName && value.length">{{value | array2string}}</span>
+          <span class="vux-popup-picker-value" v-if="!displayFormat && showName && value.length">{{value | value2name(data)}}</span>
+          <span class="vux-popup-picker-value" v-if="displayFormat && value.length">{{ displayFormat(value) }}</span>
           <span v-if="!value.length && placeholder" v-html="placeholder"></span>
         </div>
       </div>
@@ -16,23 +17,25 @@
       </div>
     </div>
 
-    <popup v-model="showValue" class="vux-popup-picker" :id="'vux-popup-picker-'+uuid" @on-hide="onPopupHide" @on-show="$emit('on-show')">
-      <div class="vux-popup-picker-container">
-        <div class="vux-popup-picker-header">
-          <flexbox>
-            <flexbox-item class="vux-popup-picker-header-menu" @click.native="onHide(false)">{{cancelText || $t('cancel_text')}}</flexbox-item>
-            <flexbox-item class="vux-popup-picker-header-menu vux-popup-picker-header-menu-right" @click.native="onHide(true)">{{confirmText || $t('confirm_text')}}</flexbox-item>
-          </flexbox>
+    <div v-transfer-dom="isTransferDom">
+      <popup v-model="showValue" class="vux-popup-picker" :id="'vux-popup-picker-'+uuid" @on-hide="onPopupHide" @on-show="$emit('on-show')">
+        <div class="vux-popup-picker-container">
+          <div class="vux-popup-picker-header">
+            <flexbox>
+              <flexbox-item class="vux-popup-picker-header-menu" @click.native="onHide(false)">{{cancelText || $t('cancel_text')}}</flexbox-item>
+              <flexbox-item class="vux-popup-picker-header-menu vux-popup-picker-header-menu-right" @click.native="onHide(true)">{{confirmText || $t('confirm_text')}}</flexbox-item>
+            </flexbox>
+          </div>
+          <picker
+          :data="data"
+          v-model="tempValue"
+          @on-change="onPickerChange"
+          :columns="columns"
+          :fixed-columns="fixedColumns"
+          :container="'#vux-popup-picker-'+uuid"></picker>
         </div>
-        <picker
-        :data="data"
-        v-model="tempValue"
-        @on-change="onPickerChange"
-        :columns="columns"
-        :fixed-columns="fixedColumns"
-        :container="'#vux-popup-picker-'+uuid"></picker>
-      </div>
-    </popup>
+      </popup>
+    </div>
 
   </div>
 </template>
@@ -55,12 +58,16 @@ import { Flexbox, FlexboxItem } from '../flexbox'
 import array2string from '../../filters/array2String'
 import value2name from '../../filters/value2name'
 import uuidMixin from '../../libs/mixin_uuid'
+import TransferDom from '../../directives/transfer-dom'
 
 const getObject = function (obj) {
   return JSON.parse(JSON.stringify(obj))
 }
 
 export default {
+  directives: {
+    TransferDom
+  },
   created () {
     if (typeof this.show !== 'undefined') {
       this.showValue = this.show
@@ -114,9 +121,15 @@ export default {
       type: Boolean,
       default: true
     },
-    show: Boolean
+    show: Boolean,
+    displayFormat: Function,
+    isTransferDom: {
+      type: Boolean,
+      default: true
+    }
   },
   methods: {
+    value2name,
     getNameValues () {
       return value2name(this.currentValue, this.data)
     },
@@ -187,6 +200,7 @@ export default {
 
 <style lang="less">
 @import '../../styles/variable.less';
+@import '../../styles/1px.less';
 
 .vux-cell-box {
   position: relative;
@@ -207,6 +221,12 @@ export default {
 .vux-popup-picker-header {
   height: 44px;
   color: @popup-picker-header-text-color;
+  background-color: @popup-picker-header-bg-color;
+  font-size: @popup-picker-header-font-size;
+  position: relative;
+  &:after {
+    .setBottomLine(#e5e5e5);
+  }
 }
 .vux-popup-picker-value {
   /* display: inline-block; */
