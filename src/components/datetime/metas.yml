@@ -23,7 +23,7 @@ props:
     default: ''
     en: cell title
     zh-CN: 标题
-  value: 
+  value:
     type: String
     default: ''
     en: form's value, use `v-model` for binding

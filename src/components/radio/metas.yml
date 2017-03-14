@@ -13,7 +13,7 @@ extra:
       </group>
     ```
     `options`可以为简单数组，也可以为key=>value形式键值对
-    
+
     ``` js
     const options = [ 'China', 'Japan' ]
 
@@ -27,7 +27,7 @@ extra:
       value: 'radio002'
     }]
     ```
-    
+
     <p class="tip">`radio`只能在`Group`中使用</p>
 props:
   value:

@@ -2,7 +2,7 @@ icon: '&#xe641;'
 name: swipeout
 import_code: '&nbsp;'
 extra: |
-  
+
   ``` js
   import { Swipeout, SwipeoutItem, SwipeoutButton } from 'vux'
   ```

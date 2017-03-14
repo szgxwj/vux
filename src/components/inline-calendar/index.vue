@@ -180,7 +180,7 @@ export default {
   }
 }
 </script>
- 
+
 <style>
 .calendar-year > span, .calendar-month > span {
   position: absolute;
