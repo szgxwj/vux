@@ -101,7 +101,7 @@ var Scroller = function (container, options) {
   component.addEventListener('mouseup', touchEndHandler, false)
 }
 
-let members = {
+var members = {
   value: null,
   __prevValue: null,
   __isSingleTouch: false,
@@ -548,6 +548,5 @@ for (var key in members) {
   Scroller.prototype[key] = members[key]
 }
 
-// module.exports = Scroller
-export default Scroller
+module.exports = Scroller
 
